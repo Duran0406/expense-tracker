@@ -8,7 +8,7 @@ import streamlit as st
 
 from auth import authenticate, register_user
 from database import (CATEGORIES, PAYMENT_METHODS, add_expense, delete_expense,
-                      get_expenses, get_user, init_db, validate_expense)
+                      get_expenses, get_user, init_db, local_today, validate_expense)
 
 st.set_page_config(page_title='Harcama Takip', page_icon='💰', layout='wide')
 # Root-level Streamlit secrets also become environment variables for the storage layer.
@@ -38,7 +38,7 @@ def start_session(user=None, demo=False):
     st.session_state['demo'] = demo
     st.session_state['signed_in_at'] = time.time()
     if demo:
-        today = date.today()
+        today = local_today()
         st.session_state['demo_expenses'] = [
             dict(id=i, amount_cents=cents, category=cat, payment_method=pay,
                  description=desc, expense_date=(today - timedelta(days=days)).isoformat())
@@ -122,7 +122,7 @@ with st.sidebar:
         category = st.selectbox('Kategori', CATEGORIES)
         payment_method = st.selectbox('Ödeme Yöntemi', PAYMENT_METHODS)
         description = st.text_input('Açıklama', max_chars=500, placeholder='Örn: Öğle yemeği')
-        expense_date = st.date_input('Tarih', value=date.today(), max_value=date.today())
+        expense_date = st.date_input('Tarih', value=local_today(), max_value=local_today())
         submitted = st.form_submit_button('💾 Kaydet', width='stretch', type='primary')
     if submitted:
         try:
@@ -152,8 +152,8 @@ if pending := st.session_state.pop('pending_period', None):
 filter_col1, filter_col2 = st.columns([2, 1])
 with filter_col1:
     period = st.date_input('📅 Tarih aralığı',
-                           value=st.session_state.get('period_default', (date.today().replace(day=1), date.today())),
-                           max_value=date.today(), key=f"period_{st.session_state.get('period_version', 0)}",
+                           value=st.session_state.get('period_default', (local_today().replace(day=1), local_today())),
+                           max_value=local_today(), key=f"period_{st.session_state.get('period_version', 0)}",
                            format='DD/MM/YYYY')
 with filter_col2:
     selected_category = st.selectbox('📂 Kategori filtresi', ['Tüm kategoriler'] + CATEGORIES,

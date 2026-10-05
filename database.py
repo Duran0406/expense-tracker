@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from datetime import date, datetime, timezone
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
+from zoneinfo import ZoneInfo
 import psycopg
 from psycopg.rows import dict_row
 
@@ -12,6 +13,10 @@ DB_PATH = Path(os.environ.get('EXPENSE_DB_PATH', Path(__file__).with_name('harca
 CATEGORIES = ['🍔 Yemek', '🛒 Market', '🚌 Ulaşım', '🏠 Fatura', '👕 Giyim', '🎮 Eğlence', '📚 Eğitim', '💊 Sağlık', '🎁 Hediye', '📦 Diğer']
 PAYMENT_METHODS = ['💳 Kredi Kartı', '💵 Nakit', '🌐 İnternet/Online']
 INTEGRITY_ERRORS = (sqlite3.IntegrityError, psycopg.IntegrityError)
+
+
+def local_today():
+    return datetime.now(ZoneInfo('Europe/Istanbul')).date()
 
 
 class DatabaseConnection:
@@ -113,7 +118,7 @@ def validate_expense(amount, category, payment_method, description, expense_date
         raise ValueError('Geçerli bir kategori ve ödeme yöntemi seçin.')
     if not isinstance(description, str) or len(description) > 500:
         raise ValueError('Açıklama en fazla 500 karakter olabilir.')
-    if type(expense_date) is not date or expense_date > date.today():
+    if type(expense_date) is not date or expense_date > local_today():
         raise ValueError('Bugün veya geçmiş bir tarih seçin.')
     return cents
 

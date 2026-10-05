@@ -1,5 +1,7 @@
 # 💰 Harcama Takip
 
+[Canlı uygulama](https://duran-expense-tracker.streamlit.app/)
+
 Python ve Streamlit ile geliştirilmiş, kişiye özel hesapları olan harcama takip uygulaması.
 Kullanıcılar kendi harcamalarını kaydeder; tarih/kategori filtreleriyle toplamları ve yüzdelik pasta grafiklerini inceler.
 
@@ -11,6 +13,7 @@ Kullanıcılar kendi harcamalarını kaydeder; tarih/kategori filtreleriyle topl
 - Kayıt olma, giriş ve çıkış; 8 saatlik oturum süresi.
 - Kullanıcıya özel harcama ekleme, listeleme ve onaylı silme.
 - Tarih aralığı ve kategori filtreleri; ödeme yöntemine göre toplamlar.
+- Türkiye saatine göre güncel tarih.
 - Kategori ve ödeme yöntemi için yüzdelik pasta grafikler.
 - Tek tıklamayla açılan, her oturuma özel örnek verili demo.
 - Yerelde SQLite; bulutta `DATABASE_URL` ile PostgreSQL desteği.
