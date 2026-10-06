@@ -78,6 +78,21 @@ class AccountTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.add(alice, value)
 
+    def test_online_payments_merge_without_changing_totals(self):
+        user = self.register()
+        expense_id = self.add(user, 123.45)
+        with db.connection() as conn:
+            conn.execute('UPDATE expenses SET payment_method = ? WHERE id = ?',
+                         ('🌐 İnternet/Online', expense_id))
+        db.init_db()
+        db.init_db()
+        rows = db.get_expenses(user['id'], date.today(), date.today())
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['payment_method'], '💳 Kredi Kartı')
+        self.assertEqual(rows[0]['amount_cents'], 12345)
+        with self.assertRaises(ValueError):
+            db.add_expense(user['id'], 10, db.CATEGORIES[0], '🌐 İnternet/Online', '', date.today())
+
     def test_legacy_migration_does_not_give_records_to_first_signup(self):
         with db.connection() as conn:
             conn.execute('DROP TABLE expenses')
@@ -103,7 +118,7 @@ class AccountTests(unittest.TestCase):
         self.assertEqual(len(app.metric), 0)
         next(b for b in app.button if b.label == '✨ Demo hesabını dene').click().run()
         self.assertFalse(app.exception)
-        self.assertEqual(len(app.metric), 4)
+        self.assertEqual(len(app.metric), 3)
         self.assertEqual(len(app.get('plotly_chart')), 2)
         app.number_input[0].set_value(42.50)
         next(b for b in app.button if b.label == '💾 Kaydet').click().run()
@@ -134,7 +149,7 @@ class AccountTests(unittest.TestCase):
         app.text_input(key='login_password').set_value(PASSWORD)
         next(b for b in app.button if b.label == 'Giriş yap').click().run(timeout=20)
         self.assertFalse(app.exception)
-        self.assertEqual(len(app.metric), 4)
+        self.assertEqual(len(app.metric), 3)
         app.session_state['signed_in_at'] = time.time() - 9 * 60 * 60
         app.run()
         self.assertFalse(app.exception)
