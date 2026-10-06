@@ -11,7 +11,7 @@ from psycopg.rows import dict_row
 
 DB_PATH = Path(os.environ.get('EXPENSE_DB_PATH', Path(__file__).with_name('harcamalar.db')))
 CATEGORIES = ['🍔 Yemek', '🛒 Market', '🚌 Ulaşım', '🏠 Fatura', '👕 Giyim', '🎮 Eğlence', '📚 Eğitim', '💊 Sağlık', '🎁 Hediye', '📦 Diğer']
-PAYMENT_METHODS = ['💳 Kredi Kartı', '💵 Nakit', '🌐 İnternet/Online']
+PAYMENT_METHODS = ['💳 Kredi Kartı', '💵 Nakit']
 INTEGRITY_ERRORS = (sqlite3.IntegrityError, psycopg.IntegrityError)
 
 
@@ -72,6 +72,8 @@ def init_db():
                 user_id BIGINT NOT NULL REFERENCES users(id),
                 amount_cents BIGINT NOT NULL CHECK(amount_cents > 0))''')
             conn.execute('CREATE INDEX IF NOT EXISTS expenses_owner_date ON expenses(user_id, expense_date)')
+            conn.execute('UPDATE expenses SET payment_method = ? WHERE payment_method = ?',
+                         ('💳 Kredi Kartı', '🌐 İnternet/Online'))
             return
         conn.execute('BEGIN IMMEDIATE')
         conn.execute('''CREATE TABLE IF NOT EXISTS users (
@@ -92,6 +94,8 @@ def init_db():
             conn.execute('ALTER TABLE expenses ADD COLUMN amount_cents INTEGER')
             conn.execute('UPDATE expenses SET amount_cents = CAST(ROUND(amount * 100) AS INTEGER)')
         conn.execute('CREATE INDEX IF NOT EXISTS expenses_owner_date ON expenses(user_id, expense_date)')
+        conn.execute('UPDATE expenses SET payment_method = ? WHERE payment_method = ?',
+                     ('💳 Kredi Kartı', '🌐 İnternet/Online'))
 
 
 def _owner(user_id):

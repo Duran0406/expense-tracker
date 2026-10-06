@@ -21,7 +21,7 @@ if cloud_database_url:
 
 
 @st.cache_resource
-def initialize_storage():
+def initialize_storage(schema_version=2):
     init_db()
 
 
@@ -46,8 +46,8 @@ def start_session(user=None, demo=False):
                 (18500, CATEGORIES[0], PAYMENT_METHODS[0], 'Öğle yemeği', 0),
                 (62000, CATEGORIES[1], PAYMENT_METHODS[0], 'Haftalık market', 0),
                 (6500, CATEGORIES[2], PAYMENT_METHODS[1], 'Ulaşım', 0),
-                (24000, CATEGORIES[5], PAYMENT_METHODS[2], 'Sinema', 0),
-                (35000, CATEGORIES[6], PAYMENT_METHODS[2], 'Kitaplar', 2),
+                (24000, CATEGORIES[5], PAYMENT_METHODS[0], 'Sinema', 0),
+                (35000, CATEGORIES[6], PAYMENT_METHODS[0], 'Kitaplar', 2),
                 (12500, CATEGORIES[0], PAYMENT_METHODS[1], 'Kahvaltı', 5),
             ], start=1)
         ]
@@ -104,6 +104,10 @@ if not st.session_state.get('account') and not st.session_state.get('demo'):
     st.stop()
 
 demo = st.session_state.get('demo', False)
+if demo:
+    for row in st.session_state.get('demo_expenses', []):
+        if row['payment_method'] == '🌐 İnternet/Online':
+            row['payment_method'] = '💳 Kredi Kartı'
 account = st.session_state.get('account')
 if not demo and not get_user(account['id']):
     st.session_state.clear()
@@ -174,7 +178,7 @@ else:
 st.caption('Toplamlar ve grafikler seçili tarih aralığına ve kategoriye göre hesaplanır.')
 totals = {method: sum(row['amount_cents'] for row in expenses if row['payment_method'] == method)
           for method in PAYMENT_METHODS}
-cards = st.columns(4)
+cards = st.columns(1 + len(PAYMENT_METHODS))
 cards[0].metric('📊 Seçili dönem toplamı', money(sum(row['amount_cents'] for row in expenses)))
 for column, method in zip(cards[1:], PAYMENT_METHODS):
     column.metric(method, money(totals[method]))
