@@ -47,7 +47,7 @@ Eski veritabanındaki kayıtlara otomatik sahip atanmaz. İlk kayıt olan kişi 
 
 Hesap yoksa yeni şifre belirlenir; varsa mevcut şifre doğrulanır. Yalnızca sahipsiz eski kayıtlar aktarılır.
 Kullanıcı adları büyük/küçük harfe duyarsızdır: `Duran` ve `duran` aynı hesaptır.
-Şifreler 15–128 karakter olmalıdır. Şifreyi sohbet, kaynak kod veya GitHub üzerinden paylaşmayın.
+Şifre boş bırakılamaz; karakter sayısı kısıtlaması yoktur. Şifreyi sohbet, kaynak kod veya GitHub üzerinden paylaşmayın.
 
 ## Ücretsiz yayınlama
 

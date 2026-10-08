@@ -27,14 +27,14 @@ def _derive(password, salt):
 
 
 def hash_password(password):
-    if not 15 <= len(password) <= 128:
-        raise ValueError('Şifreniz 15–128 karakter olmalı. Uzun bir cümle kullanabilirsiniz.')
+    if not password:
+        raise ValueError('Şifre boş bırakılamaz.')
     salt = secrets.token_bytes(16)
     return f'scrypt$131072$8$1${salt.hex()}${_derive(password, salt).hex()}'
 
 
 def verify_password(password, encoded):
-    if not 15 <= len(password) <= 128:
+    if not password:
         return False
     try:
         algorithm, n, r, p, salt, expected = encoded.split('$')
