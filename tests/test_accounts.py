@@ -55,6 +55,20 @@ class AccountTests(unittest.TestCase):
             registered = auth.register_user(username, password)
             self.assertEqual(auth.authenticate(username, password), registered)
 
+    def test_unicode_usernames_and_existing_ascii_accounts(self):
+        user = self.register('Süleyman')
+        self.assertEqual(auth.authenticate(' SÜLEYMAN ', PASSWORD), user)
+        self.assertEqual(auth.authenticate('Su\u0308leyman', PASSWORD), user)
+        with self.assertRaises(ValueError):
+            self.register('SÜLEYMAN')
+        self.assertEqual(auth.normalize_username('ÇĞÖŞÜıİ'), 'çğöşüıi')
+        self.assertEqual(auth.normalize_username('ALICE'), 'alice')
+        self.assertEqual(auth.normalize_username('İPEK'), 'ipek')
+        self.assertEqual(auth.normalize_username('Δοκιμή_123'), 'δοκιμή_123')
+        for invalid in ['ab', 'a' * 31, 'iki isim', 'ad@soyad', 'isim🙂']:
+            with self.assertRaises(ValueError):
+                auth.normalize_username(invalid)
+
     def test_throttle_survives_new_calls_and_expires(self):
         self.register()
         for _ in range(auth.MAX_FAILURES):
