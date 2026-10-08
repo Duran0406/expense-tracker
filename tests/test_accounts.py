@@ -49,7 +49,11 @@ class AccountTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.register('ALICE')
         with self.assertRaises(ValueError):
-            auth.register_user('tiny', 'short')
+            auth.register_user('empty', '')
+        self.assertFalse(auth.verify_password('', hashes[0]))
+        for username, password in [('tiny', 'a'), ('longer', 'x' * 129)]:
+            registered = auth.register_user(username, password)
+            self.assertEqual(auth.authenticate(username, password), registered)
 
     def test_throttle_survives_new_calls_and_expires(self):
         self.register()
