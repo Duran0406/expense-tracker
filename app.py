@@ -81,7 +81,7 @@ if not st.session_state.get('account') and not st.session_state.get('demo'):
     with register_tab:
         with st.form('register'):
             new_username = st.text_input('Kullanıcı adı', max_chars=30, key='register_username',
-                                         help='3–30 karakter: a-z, 0-9 ve alt çizgi.')
+                                         help='3–30 karakter: Türkçe dahil harfler, rakamlar ve alt çizgi.')
             new_password = st.text_input('Şifre', type='password', key='register_password')
             confirmation = st.text_input('Şifreyi tekrar gir', type='password')
             register = st.form_submit_button('Hesap oluştur', width='stretch', type='primary')

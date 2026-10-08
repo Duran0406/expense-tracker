@@ -1,7 +1,7 @@
 """Scrypt password hashes and persistent login throttling."""
 import hashlib
 import hmac
-import re
+import unicodedata
 import secrets
 import threading
 import time
@@ -14,9 +14,13 @@ _HASH_SLOT = threading.Semaphore(2)
 
 
 def normalize_username(username):
-    username = username.strip().lower()
-    if not re.fullmatch(r'[a-z0-9_]{3,30}', username):
-        raise ValueError('Kullanıcı adı 3–30 karakter olmalı; a-z, 0-9 ve alt çizgi içerebilir.')
+    username = unicodedata.normalize('NFC', username.strip())
+    # Keep existing ASCII account names compatible and handle dotted Turkish İ.
+    username = unicodedata.normalize('NFC', username.replace('İ', 'i').lower())
+    if not 3 <= len(username) <= 30 or not all(
+        char.isalpha() or char.isdecimal() or char == '_' for char in username
+    ):
+        raise ValueError('Kullanıcı adı 3–30 karakter olmalı; Türkçe dahil harf, rakam ve alt çizgi içerebilir.')
     return username
 
 
